@@ -1,0 +1,17 @@
+{
+  "name": "prompt-autocomplete",
+  "version": "0.0.0",
+  "description": "its a prompt thing but with autocomplete functionality",
+  "main": "prompt-autocomplete.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Rick Bergfalk",
+  "license": "MIT",
+  "dependencies": {
+    "charm": "^1.0.0",
+    "inherits": "^2.0.1",
+    "keypress": "^0.2.1",
+    "resumer": "0.0.0"
+  }
+}
