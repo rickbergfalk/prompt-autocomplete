@@ -1,14 +1,42 @@
+/*
+
+var options = {
+    maxAutocomplete: 10,
+    highlightMode: 'bright',
+    
+}
+
+promptAutocomplete("choose a file:", fileArray, function (err, value) {
+    // code here
+});
+
+promptAutocomplete("choose a file:", fileArray, {maxAutocomplete: 10}, function (err, value) {
+    // code here
+});
+
+==============================================================================*/
+
+
 var charm = require('charm')();
 var keypress = require('keypress');
 var tty = require('tty');
 
 module.exports = askQuestion;
 
-function askQuestion (config, answerCallback) {
-    var opt = config || {};
-    var maxAutocomplete = opt.maxAutocomplete || 5;
-    var promptStart = "Whatchya tryna do?";
-    var commands = [
+function askQuestion () {
+    // 1st arg is prompt question text
+    // 2nd is selection items
+    // 3rd will either be configuration, or a callback
+    // 4th will be a callback, if 3rd is configuration
+    var prompt = arguments[0];
+    var options = arguments[1];
+    var config = (typeof arguments[2] == 'function' ? {} : arguments[2]);
+    var answerCallback = (typeof arguments[2] == 'function' ? arguments[2] : arguments[3]);
+    
+    var maxAutocomplete = config.maxAutocomplete || 5;
+    var highlightMode = config.highlightMode || "bright";
+    var promptStart = prompt || "Whatchya tryna do?";
+    options = options || [
             'order some widgets',
             'build some widgets',
             'sell some widgets',
@@ -22,7 +50,6 @@ function askQuestion (config, answerCallback) {
             'build 4 widgets',
             'build 5 widgets'
         ];
-    if (config.options) commands = config.options;
     var candidates = [];
     
     
@@ -59,14 +86,19 @@ function askQuestion (config, answerCallback) {
     function getCandidates (querystr) {
         candidates = [];
         if (querystr === '' || !querystr) {
-            candidates = commands;
+            for (var i = 0; i < options.length; i++) {
+                candidates.push({text: options[i], matched: options[i]});
+            }
         } else {
             var escapedQueryString = escapeRegExp(querystr);
-            for (var i = 0; i < commands.length; i++) {
-                var command = commands[i];
+            for (var x = 0; x < options.length; x++) {
+                var option = options[x];
                 var reg = new RegExp(escapedQueryString, 'gi');
-                if (reg.test(command)) {
-                    candidates.push(command.replace(reg, '{DELIMITER}{MATCH}{DELIMITER}$&{DELIMITER}{NOMATCH}{DELIMITER}'));
+                if (reg.test(option)) {
+                    candidates.push({
+                        text: option,
+                        matched: option.replace(reg, '{DELIMITER}{MATCH}{DELIMITER}$&{DELIMITER}{NOMATCH}{DELIMITER}')
+                    });
                 }
             }
         }
@@ -114,11 +146,11 @@ function askQuestion (config, answerCallback) {
             charm.position(4, i + 2);
             charm.erase('end');
             if (candidateSubset[i]) {
-                var snippets = candidateSubset[i].split('{DELIMITER}');
+                var snippets = candidateSubset[i].matched.split('{DELIMITER}');
                 for (var s = 0; s < snippets.length; s++) {
                     var snippet = snippets[s];
                     if (snippet === '{MATCH}') {
-                        charm.display('bright');
+                        charm.display(highlightMode);
                     } else if (snippet === '{NOMATCH}') {
                         charm.display('reset');
                     } else {
@@ -210,13 +242,17 @@ function askQuestion (config, answerCallback) {
         } else if (key && key.name === 'return') {
             // if a candiate is selected, return that candidate
             // if only candidates are allowed and 1 candidate exists, return that candidate
-            charm.position(1, maxAutocomplete + 3);
-            charm.cursor(true);
-            process.stdin.setRawMode(false);
-            process.stdin.pause();
-            charm.end();
-            process.stdin.removeListener('keypress', onKeypress);
-            answerCallback(null, candidateSubset[selectedIndex]);
+            // otherwise do nothing
+            if (candidateSubset[selectedIndex] && candidateSubset[selectedIndex].text) {
+                charm.position(1, maxAutocomplete + 3);
+                charm.cursor(true);
+                process.stdin.setRawMode(false);
+                process.stdin.pause();
+                charm.end();
+                process.stdin.removeListener('keypress', onKeypress);
+                answerCallback(null, candidateSubset[selectedIndex].text);
+            }
+            
         } else {
             // chances are this is just a regular key that should be typed to screen.
             // so add it to the input and render it
@@ -225,6 +261,7 @@ function askQuestion (config, answerCallback) {
         }
     });
     
+    writeCurrent();
 }
 
 
