@@ -6,10 +6,21 @@
   "scripts": {
     "test": "node test.js"
   },
+  "keywords": [
+      "terminal", 
+      "prompt", 
+      "charm", 
+      "autocomplete", 
+      "cli"
+  ],
   "author": "Rick Bergfalk <rick.bergfalk@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "charm": "^1.0.0",
     "keypress": "^0.2.1"
+  },
+  "repository" : {
+      "type": "git", 
+      "url": "git://github.com/rickbergfalk/prompt-autocomplete.git"
   }
 }
