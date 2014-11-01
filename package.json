@@ -1,17 +1,17 @@
 {
   "name": "prompt-autocomplete",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "A prompt in the terminal but with autocomplete functionality",
   "main": "prompt-autocomplete.js",
   "scripts": {
     "test": "node test.js"
   },
   "keywords": [
-      "terminal", 
-      "prompt", 
-      "charm", 
-      "autocomplete", 
-      "cli"
+    "terminal",
+    "prompt",
+    "charm",
+    "autocomplete",
+    "cli"
   ],
   "author": "Rick Bergfalk <rick.bergfalk@gmail.com>",
   "license": "MIT",
@@ -19,8 +19,8 @@
     "charm": "^1.0.0",
     "keypress": "^0.2.1"
   },
-  "repository" : {
-      "type": "git", 
-      "url": "git://github.com/rickbergfalk/prompt-autocomplete.git"
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rickbergfalk/prompt-autocomplete.git"
   }
 }
