@@ -1,22 +1,3 @@
-/*
-
-var options = {
-    maxAutocomplete: 10,
-    highlightMode: 'bright',
-    
-}
-
-promptAutocomplete("choose a file:", fileArray, function (err, value) {
-    // code here
-});
-
-promptAutocomplete("choose a file:", fileArray, {maxAutocomplete: 10}, function (err, value) {
-    // code here
-});
-
-==============================================================================*/
-
-
 var charm = require('charm')();
 var keypress = require('keypress');
 var tty = require('tty');
@@ -28,30 +9,17 @@ function askQuestion () {
     // 2nd is selection items
     // 3rd will either be configuration, or a callback
     // 4th will be a callback, if 3rd is configuration
-    var prompt = arguments[0];
-    var options = arguments[1];
-    var config = (typeof arguments[2] == 'function' ? {} : arguments[2]);
+    var promptStart = arguments[0];
+    var items = arguments[1];
+    var config = (typeof arguments[2] == 'function' ? {} : arguments[2] || {});
     var answerCallback = (typeof arguments[2] == 'function' ? arguments[2] : arguments[3]);
-    
     var maxAutocomplete = config.maxAutocomplete || 5;
     var highlightMode = config.highlightMode || "bright";
-    var promptStart = prompt || "Whatchya tryna do?";
-    options = options || [
-            'order some widgets',
-            'build some widgets',
-            'sell some widgets',
-            'run a report',
-            'run batch process',
-            'restart service',
-            'something else',
-            'build 1 widget',
-            'build 2 widgets',
-            'build 3 widgets',
-            'build 4 widgets',
-            'build 5 widgets'
-        ];
     var candidates = [];
     
+    if (!promptStart) throw new Error("Prompt question is a required");
+    if (!items) throw new Error("Array of items is a required");
+    if (!answerCallback) throw new Error("A callback is required");
     
     /*  Stuff to get the stdout/in stuff working?
     ==============================================================================*/
@@ -86,19 +54,40 @@ function askQuestion () {
     function getCandidates (querystr) {
         candidates = [];
         if (querystr === '' || !querystr) {
-            for (var i = 0; i < options.length; i++) {
-                candidates.push({text: options[i], matched: options[i]});
+            for (var i = 0; i < items.length; i++) {
+                candidates.push({text: items[i], matched: items[i]});
             }
         } else {
+            var splitQueryString = querystr.split(" ");
             var escapedQueryString = escapeRegExp(querystr);
-            for (var x = 0; x < options.length; x++) {
-                var option = options[x];
+            for (var x = 0; x < items.length; x++) {
+                var item = items[x];
+                // if item matches full query string, push it to the list of 
+                // candidates. 
+                // if not, test on partials
                 var reg = new RegExp(escapedQueryString, 'gi');
-                if (reg.test(option)) {
+                if (reg.test(item)) {
                     candidates.push({
-                        text: option,
-                        matched: option.replace(reg, '{DELIMITER}{MATCH}{DELIMITER}$&{DELIMITER}{NOMATCH}{DELIMITER}')
+                        text: item,
+                        matched: item.replace(reg, '{DELIMITER}{MATCH}{DELIMITER}$&{DELIMITER}{NOMATCH}{DELIMITER}')
                     });
+                } else {
+                    // escape each piece of the split query string
+                    // then join together with pipes
+                    // and then do a test/replace on that
+                    var escapedSplitQueryString = "";
+                    splitQueryString.forEach(function(qs) {
+                        var escaped = escapeRegExp(qs);
+                        if (escapedSplitQueryString) escapedSplitQueryString = escapedSplitQueryString + "|" + escaped;
+                        else escapedSplitQueryString = escaped;
+                    });
+                    var splitReg = new RegExp(escapedSplitQueryString, 'gi');
+                    if (splitReg.test(item)) {
+                        candidates.push({
+                            text: item,
+                            matched: item.replace(splitReg, '{DELIMITER}{MATCH}{DELIMITER}$&{DELIMITER}{NOMATCH}{DELIMITER}')
+                        });
+                    }
                 }
             }
         }
@@ -132,15 +121,16 @@ function askQuestion () {
             charm.write(current);
         } 
         candidates = getCandidates(current);
-        writeCandidates();
         resetSelector();
+        writeCandidates();
+        
     }
     
     var subsetStart = 0;
     var candidateSubset = [];
     function writeCandidates () {
         // get candidate subset, in case we are rendering candidates beyond the max
-        candidateSubset = candidates.slice(subsetStart, subsetStart + 5);
+        candidateSubset = candidates.slice(subsetStart, subsetStart + maxAutocomplete);
         // render the candidate subset;
         for (var i = 0; i < maxAutocomplete; i++) {
             charm.position(4, i + 2);
@@ -163,6 +153,7 @@ function askQuestion () {
     
     function resetSelector () {
         // erase selected, if its on the screen
+        subsetStart = 0;
         if (selectedIndex > -1) {
             charm.position(3, selectedIndex + 2);
             charm.erase('start');
@@ -263,9 +254,3 @@ function askQuestion () {
     
     writeCurrent();
 }
-
-
-
-
-
-

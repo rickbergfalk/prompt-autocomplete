@@ -55,11 +55,4 @@ var states = [
 
 ask("Pick a state:", states, function (err, answer) {
     console.log("You picked " + answer);
-    console.log("Asking another question in 5 seconds");
-    console.log("This time it'll show up to 10 items at a time.")
-    setTimeout(function () {
-        ask("Pick another state:", states, {maxAutocomplete: 10}, function (err, answer) {
-            console.log("You picked " + answer);
-        });
-    }, 5000);
 });
