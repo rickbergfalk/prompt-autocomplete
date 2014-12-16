@@ -7,7 +7,7 @@ prompt-autocomplete is a Node.js module that provides a terminal prompt with aut
 ## Usage
 
 ```js
-var ask = require('prompt-autocomplete.js');
+var ask = require('prompt-autocomplete');
 
 var states = [
         'Alabama',
