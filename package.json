@@ -1,6 +1,6 @@
 {
   "name": "prompt-autocomplete",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A prompt in the terminal but with autocomplete functionality",
   "main": "prompt-autocomplete.js",
   "scripts": {
