@@ -13,7 +13,7 @@ function askQuestion () {
     var items = arguments[1];
     var config = (typeof arguments[2] == 'function' ? {} : arguments[2] || {});
     var answerCallback = (typeof arguments[2] == 'function' ? arguments[2] : arguments[3]);
-    var maxAutocomplete = config.maxAutocomplete || 5;
+    var maxAutocomplete = config.maxAutocomplete || process.stdout.rows - 2;
     var highlightMode = config.highlightMode || "bright";
     var candidates = [];
     
