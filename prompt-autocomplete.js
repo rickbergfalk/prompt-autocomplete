@@ -15,6 +15,7 @@ function askQuestion () {
     var answerCallback = (typeof arguments[2] == 'function' ? arguments[2] : arguments[3]);
     var maxAutocomplete = config.maxAutocomplete || process.stdout.rows - 2;
     var highlightMode = config.highlightMode || "bright";
+    var forceToList = config.forceToList===undefined ? true : config.forceToList;
     var candidates = [];
     
     if (!promptStart) throw new Error("Prompt question is a required");
@@ -242,6 +243,13 @@ function askQuestion () {
                 charm.end();
                 process.stdin.removeListener('keypress', onKeypress);
                 answerCallback(null, candidateSubset[selectedIndex].text);
+            }
+            else if(selectedIndex==-1 && !forceToList){
+                process.stdin.setRawMode(false);
+                process.stdin.pause();
+                charm.end()
+                process.stdin.removeListener('keypress',onKeypress);
+                answerCallback(null,current)
             }
             
         } else {
