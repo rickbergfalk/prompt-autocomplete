@@ -2,6 +2,9 @@
 
 prompt-autocomplete is a Node.js module that provides a terminal prompt with autocomplete-like functionality. 
 
+## Unmaintained
+
+You might be interested in the autocomplete prompt for inquirer: https://www.npmjs.com/package/inquirer-autocomplete-prompt
 
 
 ## Usage
